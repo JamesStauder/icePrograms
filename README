@@ -1,0 +1,132 @@
+This is an overall README of some of the tools you will be using included in this file.
+
+DEPENDENCIES:
+h5py
+numpy
+pylab
+scipy
+fenics
+dolfin
+pyproj
+
+
+DATASET
+The two dataset files are dataCMValues_V2.h5(which is a colormap for each dataset) and GreenlandInBedCoord_V2.h5
+The files have different grid spacing but the grids can be accessed by the X and Y variables in each file.
+Each file has each different dataset(VX, smb, etc.). The CMValues file gives the RGB value for each datapoint
+They will need to be stored in a folder within the main directory under data
+ 
+
+example python code to access datasets - 
+
+import h5py
+fullDataset = h5py.File('GreenlandInBedCoord_V2.h5', 'r')
+#fullDataset now behaves EXACTLY the same as a dictionary in python
+
+#print out each keys
+print (fullDataset.keys())
+
+bedDataset = fullDataset['bed']
+bedDatasetMatrix = bedDataset[:]
+
+
+
+
+createDatasets.py
+
+It is not important what this program does but the method createInitialDatasets()
+will return a dictionary of each dataset object. These objects have a few different
+properties
+
+
+properties -
+    name - Name of dataset
+    data - Matrix of data 
+
+
+There is one method. It is simple. You pass in an xValue and yValue and it returns you
+an interpolated value of that dataset
+method -
+    getInterpolatedValue(xValue, yValue)
+
+
+for example
+myDataset['smb'].getInterpolatedValue(x, y) ----> will return you the smb value at point(x,y)
+Note: There is a Velocity, VX, and VY dataset. VX is the velocity in x direction and VY is velocity in Y direction
+Velocity is just the magnitude of the velocity at that point((VX**2 + VY**2)**.5).
+
+
+
+translation.py
+
+This program has two classes that are pretty self explanatory - 
+
+class ProjToLatLon - Takes in an array of projection coordinates and turns them into lat lon
+class LonLatToProj - Takes in an array of lon,lat coordinates and turns them into x,y
+
+This is a simple thing and can be rewritten for sure to make simpler but this works for our Greenland Projection
+
+
+
+
+baseModel.py
+
+This is the base model that takes in current conditions of the ice and runs the model. There is a bit of work 
+that needs to be done on this but the overall structure of the program is the same. 
+
+Parameters -
+    fileName - This is the h5 file that is created from the createProfile.py file
+    timeEnd - How many years they want to run the model for. MAX should be 500.
+    timeStep - step of years. This should ALWAYS be 1. I am not sure how we would ever change this
+
+Methods -
+    runNextStep() - this just moves our model forward 1 step(1 year)
+    runAllSteps() - this moves the model to the end of the designated time end by just calling runNextStep() a bunch
+
+
+Important Variables -
+These will all be 2d arrays. For example BB[i][j] will give you the Bed Value at year i at point j. 
+
+    BB: Bed
+    HH: Height above bed
+    TD: Tau sub d
+    TB: Tau sub b
+    TX: Tau sub xx
+    TY: Tau sub xy
+    TZ: Tau sub xz
+    us: Velocity of ice on surface of ice
+    ub: Velocity of ice on the bed
+
+
+
+createFlowline.py
+this is the base Flowline creation program. This is what you will use to create your shear margins
+
+Parameters -
+    xStart - x value at the start(terminus)
+    yStart - y value at the start(terminus)
+    vxInterp - this is from your DatasetDictionary from createDatasets. i.e. createInitialDatasets('VX')
+    vyInterp - same as above but VY
+    Distance - How far do we want the flowline to go
+    resolution - Defaulted to 1000. Still figuring out if we want to change this
+
+
+
+getDataValues.py
+Simple program where you plug in x,y and you get all data valyes
+Parameters-
+    datasetDict - datasetDict from createDatasets
+    xPoint - X value of point to query
+    yPoint - Y value of point to query
+
+attribute-
+    dataValues - Dictionary with each data value
+
+createProfile.py
+NOT DONE
+
+
+
+
+
+
